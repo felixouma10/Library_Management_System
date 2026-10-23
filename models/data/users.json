@@ -1,0 +1,16 @@
+[
+    {
+        "user_id": "U001",
+        "name": "Felix Student",
+        "username": "felix",
+        "password": "1234",
+        "role": "student"
+    },
+    {
+        "user_id": "U002",
+        "name": "Faith Librarian",
+        "username": "felix",
+        "password": "admin123",
+        "role": "librarian"
+    }
+]

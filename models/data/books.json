@@ -1,0 +1,23 @@
+[
+    {
+        "book_id": "B001",
+        "title": "Python Programming",
+        "author": "Derrick Smith",
+        "category": "Programming",
+        "is_available": true
+    },
+    {
+        "book_id": "B002",
+        "title": "Database Systems",
+        "author": "Jane Phaustine",
+        "category": "Technology",
+        "is_available": true
+    },
+    {
+        "book_id": "B003",
+        "title": "Introduction to Algorithms",
+        "author": "George Komen",
+        "category": "Computer Science",
+        "is_available": true
+    }
+]
