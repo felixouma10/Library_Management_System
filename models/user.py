@@ -1,5 +1,5 @@
 class User:
-    def __init__(self, user_id, name, username, password, role):
+    def __init__(self, user_id, name, username, password, role): # constructor - Store basic info for user
         self._user_id = user_id
         self._name = name
         self._username = username
