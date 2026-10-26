@@ -3,7 +3,7 @@ from services.library_service import LibraryService
 from utils.validators import validate_not_empty, get_menu_choice
 
 def login_menu(auth_service):
-    print("\n===== LIBRARY MANAGEMENT SYSTEM =====")
+    print("\n LIBRARY MANAGEMENT SYSTEM ")
     print("1. Login")
     print("2. Exit")
 
@@ -32,7 +32,7 @@ def login_menu(auth_service):
 
 def student_menu(library_service, auth_service):
     while auth_service.current_user is not None:
-        print("\n===== STUDENT MENU =====")
+        print("\n STUDENT MENU ")
         print("1. View all books")
         print("2. Search books")
         print("3. Borrow a book")
@@ -79,7 +79,7 @@ def student_menu(library_service, auth_service):
 
 def librarian_menu(library_service, auth_service):
     while auth_service.current_user is not None:
-        print("\n===== LIBRARIAN MENU =====")
+        print("\n LIBRARIAN MENU ")
         print("1. View all books")
         print("2. Search books")
         print("3. Add a book")
