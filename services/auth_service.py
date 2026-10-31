@@ -1,5 +1,5 @@
-
 import hashlib
+import bcrypt
 
 from models.student import Student
 from models.librarian import Librarian
@@ -14,16 +14,49 @@ class AuthService:
         self.users_file = "data/users.json"
 
     @staticmethod
-    def hash_password(password):
-        """Return a SHA-256 hash of a password."""
+    def _bcrypt_password(password):
+        """Prepare passwords for bcrypt, including passwords over 72 bytes."""
+        password_bytes = password.encode("utf-8")
         return hashlib.sha256(
+            b"LibraryManagementSystem\x00" + password_bytes
+        ).hexdigest().encode("utf-8")
+
+    @staticmethod
+    def hash_password(password):
+        """Return a salted bcrypt password hash."""
+        password_bytes = AuthService._bcrypt_password(password)
+
+        return bcrypt.hashpw(
+            password_bytes,
+            bcrypt.gensalt()
+        ).decode("utf-8")
+
+    @staticmethod
+    def verify_password(password, stored_password):
+        """Verify bcrypt and support legacy SHA-256/plain-text passwords."""
+        if stored_password.startswith(("$2a$", "$2b$", "$2y$")):
+            try:
+                return bcrypt.checkpw(
+                    AuthService._bcrypt_password(password),
+                    stored_password.encode("utf-8")
+                )
+            except (ValueError, TypeError):
+                return False
+
+        # Support existing SHA-256 passwords during migration.
+        sha256_password = hashlib.sha256(
             password.encode("utf-8")
         ).hexdigest()
+
+        if stored_password == sha256_password:
+            return True
+
+        # Support older plain-text passwords during migration.
+        return stored_password == password
 
     def login(self, username, password):
         """Authenticate a user and upgrade legacy passwords."""
         users = JSONManager.load(self.users_file)
-        hashed_password = self.hash_password(password)
 
         for user_data in users:
             stored_username = user_data.get("username", "")
@@ -33,24 +66,18 @@ class AuthService:
 
             stored_password = user_data.get("password", "")
 
-            # Support existing hashed and legacy plain-text passwords.
-            if stored_password == hashed_password:
-                password_matches = True
-            elif stored_password == password:
-                password_matches = True
-
-                # Upgrade the legacy password after successful login.
-                user_data["password"] = hashed_password
-                JSONManager.save(self.users_file, users)
-            else:
-                password_matches = False
-
-            if not password_matches:
+            if not self.verify_password(password, stored_password):
                 break
+
+            # Upgrade SHA-256 and plain-text passwords to bcrypt.
+            if not stored_password.startswith(("$2a$", "$2b$", "$2y$")):
+                user_data["password"] = self.hash_password(password)
+                JSONManager.save(self.users_file, users)
 
             role = user_data.get("role", "").lower()
             user_id = user_data.get("user_id")
             name = user_data.get("name", "")
+            hashed_password = user_data["password"]
 
             if role == "student":
                 self.current_user = Student(
